@@ -14,16 +14,20 @@ This script automates the reconnection of a Huawei MIFI device when a specified 
 
 1. Copy the entire folder to your OpenWRT device.
 2. Open the file "openclash-check-ping.sh" and set the `PROXY_NAME` variable to your desired proxy name. You can find the proxy name through YACD (Yet Another Clash Dashboard).
+   example :
+   ![image](https://github.com/akzn/mifi-ip-hunter/assets/40191741/2b89995e-e637-46ee-9e95-6e85b85e767e)
+
    > Avoid using the proxy provider as `PROXY_NAME` because it will result in a "404" response.
-3. Test the script by running:
+3. Still on openclash-check-ping.sh file, set your yacd password/secret on variable `token`
+4. Test the script by running:
    ```bash
    bash openclash-check-ping.sh
    ```
-4. Set up a cron/scheduler. Below is an example for a 1-minute interval:
+5. Set up a cron/scheduler. Below is an example for a 1-minute interval:
    ```bash
    * * * * * cd [folder/path] && bash openclash-check-ping.sh
    ```
-5. to kill this script 
+6. to kill this script 
    ```
    cd /folder/path 
    bash killprocess.sh
