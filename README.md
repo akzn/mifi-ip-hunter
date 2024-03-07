@@ -23,15 +23,23 @@ This script automates the reconnection of a Huawei MIFI device when a specified 
    ```bash
    * * * * * cd [folder/path] && bash openclash-check-ping.sh
    ```
+5. to kill this script 
+   ```
+   cd /folder/path 
+   bash killprocess.sh
+   ```
 
 ## Notes
 
 - Ensure that your Huawei MIFI device is compatible (tested on 5577).
+  - default modem password is `admin`. If you have different password, change it on file `modem`, search for variable `pass` 
+  - for now its only supporting a single modem with ip 192.168 prefix. If you have different configuration, change the IP prefix on file `modem` variable `ipmodem`.
+  - you can use this to support dual modem with copying this repo into another folder and change each the IP prefix to 192.168.x and 192.168.y with x is subnet modem 1 and y is subnet modem 2.
 - Adjust the cron interval based on your requirements.
 - Avoid using the proxy provider as `PROXY_NAME` to prevent a "404" response.
 
 ## Notes++
-### stop process if loop happened
+### stop process if loop happened and kill bash is failed
 - print PID
   ```
   busybox ps | busybox grep 'openclash-check-ping.sh'
@@ -39,4 +47,8 @@ This script automates the reconnection of a Huawei MIFI device when a specified 
 - kill process
   ```
   busybox kill -9 $CRON_PID
+  ```
+- remove lock file
+  ```
+  rm -rf /tmp/openclash-check-ping.lock
   ```
