@@ -2,7 +2,7 @@
 
 ## Overview
 
-This script automates the reconnection of a Huawei MIFI device when a specified proxy has no ping. It is designed for OpenWRT environments with OpenClash installed.
+This script automates the reconnection of a Huawei MIFI device when a specified OPENCLASH proxy has no ping. It is designed for OpenWRT environments with OpenClash installed.
 
 ## Prerequisites
 
