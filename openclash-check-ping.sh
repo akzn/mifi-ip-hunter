@@ -46,7 +46,7 @@ check_delay_and_rerun() {
         echo "Delay for ${PROXY_NAME}: $delay ms"
     else
         echo "Delay check for ${PROXY_NAME} failed. Message: $message"
-        bash modem iphunter
+        bash modem reconnect
         sleep 10
         # rerun this script
         check_delay_and_rerun
@@ -58,3 +58,5 @@ check_delay_and_rerun
 
 # Remove the lock file
 rm -f "$LOCK_FILE"
+
+exit 1
