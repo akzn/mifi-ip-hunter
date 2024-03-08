@@ -36,12 +36,20 @@ This script automates the reconnection of a Huawei MIFI device when a specified 
 
 ## Notes
 
-- Ensure that your Huawei MIFI device is compatible (tested on 5577).
-  - default modem password is `admin`. If you have different password, change it on file `modem`, search for variable `pass` 
-  - for now its only supporting a single modem with ip 192.168 prefix. If you have different configuration, change the IP prefix on file `modem` variable `ipmodem`.
-  - you can use this to support dual modem with copying this repo into another folder and change each the IP prefix to 192.168.x and 192.168.y with x is subnet modem 1 and y is subnet modem 2.
-- Adjust the cron interval based on your requirements.
-- Avoid using the proxy provider as `PROXY_NAME` to prevent a "404" response.
+1. **Device Compatibility:**
+   - Ensure compatibility with your Huawei MIFI device (tested on e5577, e3372).
+   - The default modem password is `admin`. If you use a different password, update it in the `modem` file under the variable `pass`.
+   - Currently, the script supports a single modem with the IP address prefix 192.168. If your configuration differs, modify the IP prefix in the `modem` file under the variable `ipmodem`.
+
+2. **Support for Dual Modems:**
+   - To support dual modems, copy this repository into another folder and adjust the IP prefix in each copy om file "modem" to 192.168.x and 192.168.y, where x represents the subnet for modem 1 and y for modem 2.
+   - Change the lockfile name on `openclash-check-ping.sh` (line 11) for each folder/modem to set the desired configurations.
+
+3. **Cron Job Interval:**
+   - Adjust the cron interval according to your specific requirements.
+
+4. **Proxy Provider Name:**
+   - Avoid using the proxy provider as `PROXY_NAME` to prevent receiving a "404" response. Choose a unique name to ensure proper functionality.
 
 ## Notes++
 ### stop process if loop happened and kill bash is failed

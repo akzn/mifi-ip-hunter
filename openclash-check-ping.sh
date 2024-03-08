@@ -31,7 +31,7 @@ check_delay_and_rerun() {
     # Make the delay check API call
     delay_check_response=$(curl -s "${DELAY_CHECK_URL}" -H "Authorization: Bearer ${API_TOKEN}")
 
-    sleep 3
+    sleep 5
 
     # Parse JSON using jshn.sh
     . /usr/share/libubox/jshn.sh
