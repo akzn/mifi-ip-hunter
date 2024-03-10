@@ -2,19 +2,20 @@
 
 script_name="openclash-check-ping"
 
-# Get the PID of the running script (+.sh)
-script_pid=$(pgrep -f "$script_name.sh")
+# Get all PIDs of the running script (+.sh)
+script_pids=$(pgrep -f "$script_name.sh")
 
-if [ -n "$script_pid" ]; then
-    echo "Found PID: $script_pid"
+if [ -n "$script_pids" ]; then
+    echo "Found PIDs: $script_pids"
     
-    # Kill the script
-    kill "$script_pid"
-    
-    echo "Script killed successfully."
+    # Kill all instances of the script
+    for pid in $script_pids; do
+        kill "$pid"
+        echo "Script with PID $pid killed successfully."
+    done
 else
     echo "Script is not currently running."
 fi
 
-# remove the lock file
+# Remove the lock file
 rm -f "/tmp/$script_name.lock"
