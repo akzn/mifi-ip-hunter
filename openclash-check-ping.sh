@@ -4,9 +4,11 @@
 API_URL="http://0.0.0.0:9090"
 API_TOKEN="123456"
 
+# Maximum allowed failed attempts
+MAX_FAILED_ATTEMPTS=10
+
 # Specify the proxy name
-# PROXY_NAME="Failover%20Eth1"
-PROXY_NAME="1.%20ETH.1"
+PROXY_NAME="Failover%20Eth1"
 
 # Set a lock file path
 LOCK_FILE="/tmp/openclash-check-ping.lock"
@@ -20,52 +22,47 @@ fi
 # Create a lock file
 touch "$LOCK_FILE"
 
-# endpoint URL
-# DELAY_CHECK_URL="${API_URL}/proxies/${PROXY_NAME}/delay?timeout=8000&url=http%3A%2F%2Fwww.gstatic.com%2Fgenerate_204"
-
-# Healthcheck url
-HEALTH_CHECK_URL="${API_URL}/providers/proxies/${PROXY_NAME}/healthcheck"
-
-# Proxies Health Status
-HEALTH_STATUS_URL="${API_URL}/providers/proxies/${PROXY_NAME}";
+# New endpoint URL
+DELAY_CHECK_URL="${API_URL}/proxies/${PROXY_NAME}/delay?timeout=8000&url=http%3A%2F%2Fwww.gstatic.com%2Fgenerate_204"
 
 # Function to handle delay check and rerun
 check_delay_and_rerun() {
     local delay_check_response
-    local delays=()  # Array to store delays
-    local last_delay=0  # Flag to check if any delay is greater than 0
+    local delay
+    local message
     local time=$(date +"%T")
+    local count=0  # Counter to track failed attempts
 
-    # Health check first
-    health_check_response=$(curl -s "${HEALTH_CHECK_URL}" -H "Authorization: Bearer ${API_TOKEN}")
-    
-    sleep 5
+    while [ "$count" -lt "$MAX_FAILED_ATTEMPTS" ]; do
+        # Make the delay check API call
+        delay_check_response=$(curl -s "${DELAY_CHECK_URL}" -H "Authorization: Bearer ${API_TOKEN}")
 
-    # Make the delay check API call
-    delay_check_response=$(curl -s "${HEALTH_STATUS_URL}" -H "Authorization: Bearer ${API_TOKEN}")
+        sleep 3
 
-    # sleep 5
+        # Parse JSON using jshn.sh
+        . /usr/share/libubox/jshn.sh
+        json_load "$delay_check_response"
 
-    # Parse JSON using jq
-    delays=($(echo "$delay_check_response" | jq -r '.proxies[].history[].delay'))
+        # Use json_get_var to get values
+        json_get_var delay delay
+        json_get_var message message
 
-    for delay in "${delays[@]}"; do
-        # Check if the delay is greater than 0
-        if ((delay > 0)); then
-            last_delay=$delay
+        # Check if there is a delay value or an error message
+        if [ -n "$delay" ]; then
+            echo "[$time] Delay for ${PROXY_NAME}: $delay ms"
+            break  # Exit loop on successful delay check
+        else
+            echo "attemt $((count+1))/$MAX_FAILED_ATTEMPTS"
+            echo "[$time] Delay check for ${PROXY_NAME} failed. Message: $message"
+            ((count++))
+            sleep 5
         fi
     done
 
-    if ((last_delay > 0)); then
-        # echo the delay
-        echo "Delay for proxies ${PROXY_NAME}: $last_delay ms at time $time"
-    else
-        # iphunter
-        echo "Delay check for proxies ${PROXY_NAME} at time $time failed."
+    # If delay check fails 5 times, attempt to reconnect
+    if [ "$count" -eq "$MAX_FAILED_ATTEMPTS" ]; then
+        echo "Failed to check delay for ${PROXY_NAME} $MAX_FAILED_ATTEMPTS times. Reconnecting..."
         bash modem reconnect
-        sleep 10
-        # rerun this script
-        check_delay_and_rerun
     fi
 }
 

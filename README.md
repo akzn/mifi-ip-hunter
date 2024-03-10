@@ -9,11 +9,6 @@ This script automates the reconnection of a Huawei MIFI device when a specified 
 1. OpenWRT installed.
 2. OpenClash installed.
 3. Huawei MIFI device (Tested on 5577).
-4. This script utilizes jq as a JSON parser. If jq is not installed on your OpenWrt device, you can install it by running the following commands:
-   ```bash
-   opkg update
-   opkg install jq
-   ```
 
 ## Installation
 
