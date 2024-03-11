@@ -5,7 +5,7 @@ API_URL="http://0.0.0.0:9090"
 API_TOKEN="123456"
 
 # Maximum allowed failed attempts
-MAX_FAILED_ATTEMPTS=10
+MAX_FAILED_ATTEMPTS=5
 
 # Specify the proxy name
 PROXY_NAME="Failover%20Eth1"
@@ -30,7 +30,7 @@ check_delay_and_rerun() {
     local delay_check_response
     local delay
     local message
-    local time=$(date +"%T")
+    local time=$(date "+%H:%M:%S")
     local count=0  # Counter to track failed attempts
 
     while [ "$count" -lt "$MAX_FAILED_ATTEMPTS" ]; do
@@ -49,20 +49,31 @@ check_delay_and_rerun() {
 
         # Check if there is a delay value or an error message
         if [ -n "$delay" ]; then
-            echo "[$time] Delay for ${PROXY_NAME}: $delay ms"
+            echo "[$(date "+%H:%M:%S")] Delay for ${PROXY_NAME}: $delay ms"
             break  # Exit loop on successful delay check
         else
             echo "attemt $((count+1))/$MAX_FAILED_ATTEMPTS"
-            echo "[$time] Delay check for ${PROXY_NAME} failed. Message: $message"
+            # current time
+            echo "[$(date "+%H:%M:%S")] Delay check for ${PROXY_NAME} failed. Message: $message"
             ((count++))
-            sleep 5
+            sleep 2
         fi
     done
 
     # If delay check fails 5 times, attempt to reconnect
     if [ "$count" -eq "$MAX_FAILED_ATTEMPTS" ]; then
-        echo "Failed to check delay for ${PROXY_NAME} $MAX_FAILED_ATTEMPTS times. Reconnecting..."
-        bash modem reconnect
+        
+        # only reconnect if message contain "Timeout"
+        if [[ "$message" == *"Timeout"* ]]; then
+            echo "cdelay check for ${PROXY_NAME} $MAX_FAILED_ATTEMPTS times got 'timeout' status. Reconnecting..."
+            bash modem iphunterb1b3
+        else
+            echo "Failed to check delay for ${PROXY_NAME} $MAX_FAILED_ATTEMPTS times. Message: $message"
+        fi
+
+        # run the script again
+        echo "Recheck connection..."
+        check_delay_and_rerun
     fi
 }
 
