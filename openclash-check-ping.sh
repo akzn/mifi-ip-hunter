@@ -37,6 +37,13 @@ check_delay_and_rerun() {
         # Make the delay check API call
         delay_check_response=$(curl -s "${DELAY_CHECK_URL}" -H "Authorization: Bearer ${API_TOKEN}")
 
+        # Check if curl failed to connect
+        if [ $? -ne 0 ]; then
+            echo "Exiting iphunter due to Curl failed to connect. probably Openclash is not running."
+            rm -f "$LOCK_FILE"
+            exit 1
+        fi
+
         sleep 3
 
         # Parse JSON using jshn.sh
@@ -55,9 +62,11 @@ check_delay_and_rerun() {
             echo "attemt $((count+1))/$MAX_FAILED_ATTEMPTS"
             # current time
             echo "[$(date "+%H:%M:%S")] Delay check for ${PROXY_NAME} failed. Message: $message"
-            ((count++))
+            # ((count++))
             sleep 5
         fi
+
+        count=$((count+1))
     done
 
     # If delay check fails 5 times, attempt to reconnect
